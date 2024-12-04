@@ -1,0 +1,7 @@
+// ad the db, icremental and output files here
+db/
+incremental_db/
+output_files/
+simulation/
+Snake.v.bak
+Snake_assignment_defaults.qdf
