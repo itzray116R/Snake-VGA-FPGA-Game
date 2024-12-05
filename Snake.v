@@ -53,7 +53,7 @@ module Snake(start, master_clk, B_direction, B_reset, VGA_R, VGA_G, VGA_B, VGA_h
 	
 	// Border function
 	always @(posedge VGA_clk) begin
-		border <= (((xCount >= 0) && (xCount < 11) || (xCount >= 630) && (xCount < 641)) || ((yCount >= 0) && (yCount < 11) || (yCount >= 470) && (yCount < 481)));
+		border <= (((xCount >= 0) && (xCount < 3) || (xCount >= 637) && (xCount < 640)) || ((yCount >= 0) && (yCount < 3) || (yCount >= 477) && (yCount < 480)));
 	end
 	
 	// Apple position update
@@ -107,8 +107,8 @@ module Snake(start, master_clk, B_direction, B_reset, VGA_R, VGA_G, VGA_B, VGA_h
 			endcase    
 		end else if (~start) begin
 			for (count3 = 1; count3 < 128; count3 = count3 + 1) begin
-				snakeX[count3] = 700;
-				snakeY[count3] = 500;
+				snakeX[count3] = 320;
+				snakeY[count3] = 240;
 			end
 		end
 	end
@@ -200,54 +200,55 @@ endmodule
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// VGA signal generation module
 module VGA_gen(VGA_clk, xCount, yCount, displayArea, VGA_hSync, VGA_vSync);
 
-	input VGA_clk;
-	output reg [9:0] xCount, yCount; 
-	output reg displayArea;  
-	output VGA_hSync, VGA_vSync;
+    input VGA_clk;
+    output reg [9:0] xCount, yCount; 
+    output reg displayArea;  
+    output VGA_hSync, VGA_vSync;
 
-	reg p_hSync, p_vSync; 
-	
-	integer porchHF = 640; // start of horizontal front porch
-	integer syncH = 655; // start of horizontal sync
-	integer porchHB = 747; // start of horizontal back porch
-	integer maxH = 793; // total length of line
+    reg p_hSync, p_vSync; 
+    
+    integer porchHF = 640; // start of horizontal front porch
+    integer syncH = 656; // start of horizontal sync
+    integer porchHB = 752; // start of horizontal back porch
+    integer maxH = 800; // total length of line
 
-	integer porchVF = 480; // start of vertical front porch 
-	integer syncV = 490; // start of vertical sync
-	integer porchVB = 492; // start of vertical back porch
-	integer maxV = 525; // total rows
+    integer porchVF = 480; // start of vertical front porch 
+    integer syncV = 490; // start of vertical sync
+    integer porchVB = 492; // start of vertical back porch
+    integer maxV = 525; // total rows
 
-	always @(posedge VGA_clk) begin
-		if (xCount === maxH) begin
-			xCount <= 0;
-		end else begin
-			xCount <= xCount + 1;
-		end
-	end
-	
-	always @(posedge VGA_clk) begin
-		if (xCount === maxH) begin
-			if (yCount === maxV) begin
-				yCount <= 0;
-			end else begin
-				yCount <= yCount + 1;
-			end
-		end
-	end
-	
-	always @(posedge VGA_clk) begin
-		displayArea <= ((xCount < porchHF) && (yCount < porchVF)); 
-	end
+    always @(posedge VGA_clk) begin
+        if (xCount === maxH) begin
+            xCount <= 0;
+        end else begin
+            xCount <= xCount + 1;
+        end
+    end
+    
+    always @(posedge VGA_clk) begin
+        if (xCount === maxH) begin
+            if (yCount === maxV) begin
+                yCount <= 0;
+            end else begin
+                yCount <= yCount + 1;
+            end
+        end
+    end
+    
+    always @(posedge VGA_clk) begin
+        displayArea <= ((xCount < porchHF) && (yCount < porchVF)); 
+    end
 
-	always @(posedge VGA_clk) begin
-		p_hSync <= ((xCount >= syncH) && (xCount < porchHB)); 
-		p_vSync <= ((yCount >= syncV) && (yCount < porchVB)); 
-	end
+    always @(posedge VGA_clk) begin
+        p_hSync <= ((xCount >= syncH) && (xCount < porchHB)); 
+        p_vSync <= ((yCount >= syncV) && (yCount < porchVB)); 
+    end
 
-	assign VGA_vSync = ~p_vSync; 
-	assign VGA_hSync = ~p_hSync;
+    assign VGA_vSync = ~p_vSync; 
+    assign VGA_hSync = ~p_hSync;
 endmodule        
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
